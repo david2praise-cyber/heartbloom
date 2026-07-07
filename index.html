@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartBloom 💕</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(to bottom, #fdf2f8, #fce7f3); }
+        .heading { font-family: 'Playfair Display', serif; }
+        .card { transition: all 0.4s; }
+        .card:hover { transform: scale(1.03); }
+    </style>
+</head>
+<body class="min-h-screen pb-20">
+
+    <!-- Top Love Bar -->
+    <div class="bg-rose-600 text-white py-4 px-6 flex items-center justify-between fixed top-0 w-full z-50">
+        <div class="flex items-center gap-3">
+            <span class="text-3xl">💞</span>
+            <div>
+                <h1 class="heading text-2xl font-bold">HeartBloom</h1>
+                <p class="text-xs opacity-75">Alex & Jordan • 487 days</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <div class="text-xl">🌸 Summer Season</div>
+        </div>
+    </div>
+
+    <div class="pt-24 px-4 max-w-xl mx-auto">
+
+        <!-- Daily Love Note -->
+        <div class="bg-white rounded-3xl p-6 mb-6 shadow-lg card">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-rose-500 text-sm font-medium">Today's Love Note 💌</p>
+                    <p class="text-xl mt-3 leading-tight">"My favorite place is inside your arms. Even when we far, my heart dey there with you."</p>
+                </div>
+                <span class="text-5xl">🌅</span>
+            </div>
+            <button onclick="sendLoveNote()" class="mt-6 w-full bg-rose-500 text-white py-4 rounded-2xl font-medium">Send this one to my Love</button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-4 gap-3 mb-8">
+            <button onclick="shareMoment('photo')" class="bg-white p-4 rounded-3xl card flex flex-col items-center gap-1 shadow">
+                <i class="fas fa-camera text-3xl text-rose-500"></i>
+                <span class="text-xs">Photo</span>
+            </button>
+            <button onclick="shareMoment('voice')" class="bg-white p-4 rounded-3xl card flex flex-col items-center gap-1 shadow">
+                <i class="fas fa-microphone text-3xl text-rose-500"></i>
+                <span class="text-xs">Voice</span>
+            </button>
+            <button onclick="shareMoment('hug')" class="bg-white p-4 rounded-3xl card flex flex-col items-center gap-1 shadow">
+                <i class="fas fa-heart text-3xl text-rose-500"></i>
+                <span class="text-xs">Virtual Hug</span>
+            </button>
+            <button onclick="shareMoment('date')" class="bg-white p-4 rounded-3xl card flex flex-col items-center gap-1 shadow">
+                <i class="fas fa-calendar text-3xl text-rose-500"></i>
+                <span class="text-xs">Plan Date</span>
+            </button>
+        </div>
+
+        <!-- Memory Lane -->
+        <div class="mb-4 flex justify-between items-center">
+            <h2 class="text-xl font-semibold">Our Sweet Memories</h2>
+            <button onclick="newMemory()" class="text-rose-600 text-sm font-medium">+ New</button>
+        </div>
+
+        <div id="memories" class="space-y-6">
+            <!-- JS go put memories here -->
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t max-w-xl mx-auto flex justify-around py-3 text-xs">
+        <button onclick="switchPage(0)" class="flex flex-col items-center text-rose-500">
+            <i class="fas fa-home text-xl"></i>
+            <span>Home</span>
+        </button>
+        <button onclick="switchPage(1)" class="flex flex-col items-center">
+            <i class="fas fa-calendar text-xl"></i>
+            <span>Seasons</span>
+        </button>
+        <button onclick="switchPage(2)" class="flex flex-col items-center">
+            <i class="fas fa-heart text-xl"></i>
+            <span>Chat</span>
+        </button>
+        <button onclick="switchPage(3)" class="flex flex-col items-center">
+            <i class="fas fa-gift text-xl"></i>
+            <span>Gifts</span>
+        </button>
+    </div>
+
+    <script>
+        let memories = [
+            {text: "That day we dance for rain 🌧️", time: "2hrs ago", emoji: "💃"},
+            {text: "You cook jollof for me ❤️", time: "Yesterday", emoji: "🍚"}
+        ];
+
+        function renderMemories() {
+            const div = document.getElementById("memories");
+            div.innerHTML = "";
+            memories.forEach(m => {
+                div.innerHTML += `
+                <div class="bg-white rounded-3xl p-5 card shadow">
+                    <div class="flex gap-4">
+                        <div class="text-4xl">${m.emoji}</div>
+                        <div class="flex-1">
+                            <p class="text-gray-700">${m.text}</p>
+                            <p class="text-xs text-rose-400 mt-2">${m.time}</p>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function newMemory() {
+            const text = prompt("Wetin happen today? Write am make we remember:");
+            if (text) {
+                memories.unshift({text: text, time: "Just now", emoji: "❤️"});
+                renderMemories();
+                alert("✅ Memory don save and send to your love!");
+            }
+        }
+
+        function shareMoment(type) {
+            let msg = "";
+            if (type === "photo") msg = "I just snap this one because of you 📸";
+            else if (type === "voice") msg = "Listen to my voice note baby 🎤";
+            else if (type === "hug") msg = "Sending you tight warm hug right now 🤗";
+            else if (type === "date") msg = "Babe, make we go date this weekend? 🌹";
+
+            memories.unshift({text: msg, time: "Just now", emoji: "💌"});
+            renderMemories();
+            alert("❤️ Sent to your partner!");
+        }
+
+        function sendLoveNote() {
+            alert("💌 Love note don fly go your bae phone!");
+        }
+
+        function switchPage(n) {
+            alert("This page dey come soon... but the app sweet already na?");
+        }
+
+        // Start the app
+        renderMemories();
+    </script>
+</body>
+                  </html>
