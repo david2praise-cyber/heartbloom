@@ -5,55 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HeartBloom 💕</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body class="bg-pink-50">
+<body class="bg-pink-50 min-h-screen">
 
-<div class="max-w-xl mx-auto p-4">
-    <div class="bg-rose-600 text-white p-5 rounded-3xl">
-        <h1 class="text-3xl font-bold">HeartBloom</h1>
-        <p class="text-sm">Connect Safely</p>
-    </div>
-
-    <div class="mt-6 bg-white rounded-3xl p-6 shadow">
-        <h2 class="font-bold mb-4">Couple Mode</h2>
-        <button onclick="generateCode()" class="w-full bg-rose-500 text-white py-4 rounded-2xl mb-4">Generate My Couple Code</button>
-        
-        <div class="border p-4 rounded-2xl mb-6">
-            <p class="text-sm text-gray-500">Enter Partner Code</p>
-            <input id="partnerCode" placeholder="Enter code here" class="w-full p-4 border rounded-2xl mt-2">
-            <button onclick="joinCouple()" class="w-full mt-3 bg-green-600 text-white py-4 rounded-2xl">Join as Partner</button>
+<div class="max-w-xl mx-auto">
+    <!-- Login -->
+    <div id="login" class="p-6">
+        <div class="text-center py-10">
+            <h1 class="text-4xl font-bold text-rose-600">HeartBloom</h1>
+        </div>
+        <div class="bg-white rounded-3xl p-8">
+            <input id="name" placeholder="Your Name" class="w-full p-4 border rounded-2xl mb-4">
+            <select id="language" class="w-full p-4 border rounded-2xl mb-6">
+                <option value="en">English (Oyibo)</option>
+                <option value="pidgin">Pidgin (Naija)</option>
+            </select>
+            <button onclick="startApp()" class="w-full bg-rose-600 text-white py-4 rounded-2xl">Start</button>
         </div>
     </div>
 
-    <div class="mt-8">
-        <h2 class="font-bold mb-4">Discover People</h2>
-        <button onclick="findFriends()" class="w-full bg-white border border-rose-300 py-6 rounded-3xl mb-3">🌍 Neighborhood Friends</button>
-        <button onclick="findAdmirers()" class="w-full bg-white border border-rose-300 py-6 rounded-3xl">❤️ Random Admirers</button>
+    <!-- Main App -->
+    <div id="app" class="hidden">
+        <div class="bg-rose-600 text-white p-4">
+            <div class="flex justify-between">
+                <h1>HeartBloom</h1>
+                <select onchange="changeLang()" id="langSwitch">
+                    <option value="en">English</option>
+                    <option value="pidgin">Pidgin</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="p-4">
+            <button onclick="generateCoupleCode()" class="w-full bg-green-600 text-white py-3 rounded-2xl mb-4">Generate Couple Code for My Wife</button>
+            
+            <input id="enterCode" placeholder="Enter Partner Code" class="w-full p-4 border rounded-2xl mb-2">
+            <button onclick="connectPartner()" class="w-full bg-blue-600 text-white py-3 rounded-2xl mb-8">Connect with Partner</button>
+
+            <h2 class="font-bold mb-3">Love Tips & Counseling</h2>
+            <button onclick="getTip()" class="w-full bg-white p-4 rounded-2xl border mb-8">Ask for Love Advice or Heartbreak Help</button>
+
+            <h2 class="font-bold mb-3">Discover</h2>
+            <button onclick="discoverNeighborhood()" class="w-full bg-white p-4 rounded-2xl border mb-3">Neighborhood Friends</button>
+            <button onclick="discoverAdmirers()" class="w-full bg-white p-4 rounded-2xl border">Random Admirers</button>
+        </div>
     </div>
 </div>
 
 <script>
-    function generateCode() {
+    let currentLang = "en";
+
+    function startApp() {
+        document.getElementById("login").classList.add("hidden");
+        document.getElementById("app").classList.remove("hidden");
+    }
+
+    function changeLang() {
+        currentLang = document.getElementById("langSwitch").value;
+        alert(currentLang === "pidgin" ? "App don switch to Pidgin" : "App don switch to English");
+    }
+
+    function generateCoupleCode() {
         const code = "HB-" + Math.floor(100000 + Math.random() * 900000);
-        alert("✅ Your Couple Code is:\n\n" + code + "\n\nShare this code with your wife.");
+        alert("Your Couple Code:\n\n" + code + "\n\nShare with your wife.");
     }
 
-    function joinCouple() {
-        const code = document.getElementById("partnerCode").value;
-        if (code) {
-            alert("✅ Connected successfully as partners! 💕\nYou and your wife are now linked.");
-        } else {
-            alert("Enter the code first.");
-        }
+    function connectPartner() {
+        const code = document.getElementById("enterCode").value;
+        if (code) alert("✅ You and your wife don connect! 💕 You fit chat now.");
+        else alert("Enter the code.");
     }
 
-    function findFriends() {
-        alert("🔍 Looking for people near you...\n\n(Neighborhood mode with permission system)");
+    function getTip() {
+        alert(currentLang === "pidgin" ? 
+            "If your heart dey pain, remember say time go heal am. Talk to person wey you trust." : 
+            "Heartbreak is painful but you will heal. Take it one day at a time.");
     }
 
-    function findAdmirers() {
-        alert("❤️ Showing admirers...\n\nSafety check active.");
+    function discoverNeighborhood() {
+        alert("🔍 Finding people near you... (Permission required before chat)");
+    }
+
+    function discoverAdmirers() {
+        alert("❤️ Showing admirers... Safety verification active.");
     }
 </script>
 </body>
