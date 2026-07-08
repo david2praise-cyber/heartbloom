@@ -6,88 +6,65 @@
     <title>HeartBloom 💕</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-pink-50 min-h-screen">
+<body class="bg-gradient-to-br from-pink-50 to-purple-50">
 
-<div class="max-w-xl mx-auto">
-    <!-- Login -->
-    <div id="login" class="p-6">
-        <div class="text-center py-10">
-            <h1 class="text-4xl font-bold text-rose-600">HeartBloom</h1>
+<div class="max-w-xl mx-auto p-4">
+    <div class="bg-gradient-to-r from-rose-500 to-purple-600 text-white p-5 rounded-3xl mb-6">
+        <h1 class="text-3xl font-bold">HeartBloom</h1>
+        <p class="text-sm">Love Without Borders</p>
+    </div>
+
+    <!-- Language -->
+    <div class="bg-white p-4 rounded-3xl mb-6">
+        <label class="block text-sm mb-2">Choose Language / Langue / Ede</label>
+        <select id="lang" onchange="switchLanguage()" class="w-full p-4 border rounded-2xl">
+            <option value="en">English</option>
+            <option value="pidgin">Naija Pidgin</option>
+            <option value="yo">Yoruba</option>
+            <option value="ig">Igbo</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+        </select>
+    </div>
+
+    <!-- News Feed -->
+    <div class="mb-6">
+        <h2 class="font-bold text-lg mb-3">❤️ Love Feed (Global)</h2>
+        <div class="bg-white rounded-3xl p-5 mb-4 shadow">
+            <p class="text-sm text-gray-500">From Paris • 2hrs ago</p>
+            <p>"Love is the same in every language. Today I proposed in French 💍"</p>
         </div>
-        <div class="bg-white rounded-3xl p-8">
-            <input id="name" placeholder="Your Name" class="w-full p-4 border rounded-2xl mb-4">
-            <select id="language" class="w-full p-4 border rounded-2xl mb-6">
-                <option value="en">English (Oyibo)</option>
-                <option value="pidgin">Pidgin (Naija)</option>
-            </select>
-            <button onclick="startApp()" class="w-full bg-rose-600 text-white py-4 rounded-2xl">Start</button>
+        <div class="bg-white rounded-3xl p-5 shadow">
+            <p class="text-sm text-gray-500">From Lagos • Yesterday</p>
+            <p>"She said Yes! After 3 years of courtship ❤️"</p>
         </div>
     </div>
 
-    <!-- Main App -->
-    <div id="app" class="hidden">
-        <div class="bg-rose-600 text-white p-4">
-            <div class="flex justify-between">
-                <h1>HeartBloom</h1>
-                <select onchange="changeLang()" id="langSwitch">
-                    <option value="en">English</option>
-                    <option value="pidgin">Pidgin</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="p-4">
-            <button onclick="generateCoupleCode()" class="w-full bg-green-600 text-white py-3 rounded-2xl mb-4">Generate Couple Code for My Wife</button>
-            
-            <input id="enterCode" placeholder="Enter Partner Code" class="w-full p-4 border rounded-2xl mb-2">
-            <button onclick="connectPartner()" class="w-full bg-blue-600 text-white py-3 rounded-2xl mb-8">Connect with Partner</button>
-
-            <h2 class="font-bold mb-3">Love Tips & Counseling</h2>
-            <button onclick="getTip()" class="w-full bg-white p-4 rounded-2xl border mb-8">Ask for Love Advice or Heartbreak Help</button>
-
-            <h2 class="font-bold mb-3">Discover</h2>
-            <button onclick="discoverNeighborhood()" class="w-full bg-white p-4 rounded-2xl border mb-3">Neighborhood Friends</button>
-            <button onclick="discoverAdmirers()" class="w-full bg-white p-4 rounded-2xl border">Random Admirers</button>
-        </div>
-    </div>
+    <!-- Couple Code -->
+    <button onclick="generateCode()" class="w-full bg-rose-600 text-white py-4 rounded-3xl mb-4">Generate Couple Code</button>
+    
+    <input id="codeInput" placeholder="Enter Partner Code" class="w-full p-4 border rounded-3xl mb-2">
+    <button onclick="joinPartner()" class="w-full bg-green-600 text-white py-4 rounded-3xl">Connect with Partner</button>
 </div>
 
 <script>
-    let currentLang = "en";
-
-    function startApp() {
-        document.getElementById("login").classList.add("hidden");
-        document.getElementById("app").classList.remove("hidden");
+    function switchLanguage() {
+        const lang = document.getElementById("lang").value;
+        let msg = "Language changed!";
+        if (lang === "pidgin") msg = "App don change to Pidgin!";
+        else if (lang === "yo") msg = "E kaabo! (Welcome in Yoruba)";
+        alert(msg);
     }
 
-    function changeLang() {
-        currentLang = document.getElementById("langSwitch").value;
-        alert(currentLang === "pidgin" ? "App don switch to Pidgin" : "App don switch to English");
-    }
-
-    function generateCoupleCode() {
+    function generateCode() {
         const code = "HB-" + Math.floor(100000 + Math.random() * 900000);
-        alert("Your Couple Code:\n\n" + code + "\n\nShare with your wife.");
+        alert("Your Couple Code:\n" + code + "\n\nShare with your partner.");
     }
 
-    function connectPartner() {
-        const code = document.getElementById("enterCode").value;
-        if (code) alert("✅ You and your wife don connect! 💕 You fit chat now.");
-        else alert("Enter the code.");
-    }
-
-    function getTip() {
-        alert(currentLang === "pidgin" ? 
-            "If your heart dey pain, remember say time go heal am. Talk to person wey you trust." : 
-            "Heartbreak is painful but you will heal. Take it one day at a time.");
-    }
-
-    function discoverNeighborhood() {
-        alert("🔍 Finding people near you... (Permission required before chat)");
-    }
-
-    function discoverAdmirers() {
-        alert("❤️ Showing admirers... Safety verification active.");
+    function joinPartner() {
+        if (document.getElementById("codeInput").value) {
+            alert("✅ You and your partner don connect successfully! 💕");
+        }
     }
 </script>
 </body>
