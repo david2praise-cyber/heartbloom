@@ -7,34 +7,42 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { background: linear-gradient(to bottom, #fdf2f8, #fce7f3); font-family: system-ui; }
+        .card { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(225,29,72,0.1); }
+    </style>
 </head>
-<body class="bg-pink-50 min-h-screen">
+<body class="min-h-screen">
 
 <div class="max-w-xl mx-auto p-4">
-    <h1 class="text-4xl font-bold text-rose-600 text-center my-10">HeartBloom</h1>
+    <div class="text-center py-8">
+        <span class="text-5xl">💞</span>
+        <h1 class="text-4xl font-bold text-rose-600">HeartBloom</h1>
+    </div>
 
     <!-- Auth -->
-    <div id="auth-screen">
-        <div class="bg-white rounded-3xl p-8">
-            <input id="email" type="email" placeholder="Email" class="w-full p-5 border rounded-2xl mb-4">
-            <input id="password" type="password" placeholder="Password" class="w-full p-5 border rounded-2xl mb-6">
-            <button onclick="signUp()" class="w-full bg-rose-600 text-white py-5 rounded-3xl mb-3">Sign Up</button>
-            <button onclick="login()" class="w-full border border-rose-600 text-rose-600 py-5 rounded-3xl">Login</button>
-        </div>
+    <div id="auth" class="card p-8">
+        <input id="email" type="email" placeholder="Your Email" class="w-full p-5 border border-pink-200 rounded-2xl mb-4">
+        <input id="password" type="password" placeholder="Password" class="w-full p-5 border border-pink-200 rounded-2xl mb-6">
+        <button onclick="signUp()" class="w-full bg-rose-600 text-white py-5 rounded-3xl text-lg">Create Account</button>
+        <button onclick="login()" class="w-full mt-4 border border-rose-400 text-rose-600 py-5 rounded-3xl">Login</button>
     </div>
 
     <!-- Main -->
-    <div id="main-screen" class="hidden">
-        <button onclick="logout()" class="text-red-500">Logout</button>
+    <div id="main" class="hidden">
+        <button onclick="logout()" class="text-red-500 mb-6">Logout</button>
         
-        <textarea id="postText" class="w-full h-32 p-5 border rounded-3xl mt-8" placeholder="Share your love moment..."></textarea>
-        <button onclick="postMoment()" class="w-full bg-rose-600 text-white py-5 rounded-3xl mt-4">Post to Wall</button>
-        
-        <div id="feed" class="mt-12 space-y-6"></div>
+        <div class="card p-6">
+            <textarea id="postText" class="w-full h-32 p-5 border border-pink-200 rounded-3xl" placeholder="Write something sweet for the world..."></textarea>
+            <button onclick="postMoment()" class="w-full mt-4 bg-rose-600 text-white py-5 rounded-3xl">Share Moment 💕</button>
+        </div>
+
+        <div id="feed" class="mt-10 space-y-6"></div>
     </div>
 </div>
 
 <script>
+    // Your Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyA6XhN7vkrjL8eNEOyBOVXf04Mf_2gAPnc",
       authDomain: "heartbloom-love.firebaseapp.com",
@@ -52,15 +60,15 @@
     function signUp() {
         const email = document.getElementById("email").value;
         const pass = document.getElementById("password").value;
-        auth.createUserWithEmailAndPassword(email, pass).then(() => alert("Account created! Login now.")).catch(e => alert(e.message));
+        auth.createUserWithEmailAndPassword(email, pass).then(() => alert("Account created!")).catch(e => alert(e.message));
     }
 
     function login() {
         const email = document.getElementById("email").value;
         const pass = document.getElementById("password").value;
         auth.signInWithEmailAndPassword(email, pass).then(() => {
-            document.getElementById("auth-screen").classList.add("hidden");
-            document.getElementById("main-screen").classList.remove("hidden");
+            document.getElementById("auth").classList.add("hidden");
+            document.getElementById("main").classList.remove("hidden");
             loadFeed();
         }).catch(e => alert(e.message));
     }
@@ -73,24 +81,20 @@
     function postMoment() {
         const text = document.getElementById("postText").value;
         if (text) {
-            db.collection("posts").add({text: text, createdAt: Date.now()})
-                .then(() => {
-                    alert("💕 Post saved!");
-                    document.getElementById("postText").value = "";
-                    loadFeed();
-                });
+            db.collection("posts").add({text: text, time: Date.now()}).then(() => {
+                alert("💕 Shared beautifully!");
+                document.getElementById("postText").value = "";
+                loadFeed();
+            });
         }
     }
 
     function loadFeed() {
-        db.collection("posts").orderBy("createdAt", "desc").limit(20).get()
-            .then(snapshot => {
-                let html = "";
-                snapshot.forEach(doc => {
-                    html += `<div class="bg-white p-6 rounded-3xl mb-4">${doc.data().text}</div>`;
-                });
-                document.getElementById("feed").innerHTML = html || "<p>No posts yet. Be the first!</p>";
-            });
+        db.collection("posts").orderBy("time", "desc").limit(10).get().then(s => {
+            let html = "";
+            s.forEach(d => html += `<div class="card p-6">${d.data().text}</div>`);
+            document.getElementById("feed").innerHTML = html || "<p>No moments yet. Be the first to share ❤️</p>";
+        });
     }
 </script>
 </body>
