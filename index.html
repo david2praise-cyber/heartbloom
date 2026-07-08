@@ -1,97 +1,462 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeartBloom 💕</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <style>
-        body { background: linear-gradient(135deg, #fdf2f8, #fce7f3); }
-        .card { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(225,29,72,0.15); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HeartBloom — Love in Every Season</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --blush:#FFF3F6;
+    --cream:#FFFBF8;
+    --rose:#C81D5B;
+    --rose-deep:#8C1442;
+    --plum:#3A1030;
+    --gold:#CB9A55;
+    --ink:#2B1620;
+    --ink-soft:#7A5C68;
+    --line:#F1D9E0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--blush);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Fraunces',serif;}
+  ::selection{background:var(--rose);color:#fff;}
+
+  #app-shell{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--cream);
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 0 60px rgba(140,20,66,0.08);
+  }
+
+  /* ---------- SCREEN SWITCHING ---------- */
+  .screen{display:none;flex-direction:column;min-height:100vh;}
+  .screen.active{display:flex;}
+
+  /* ---------- AUTH SCREEN ---------- */
+  #screen-auth{
+    background:
+      radial-gradient(120% 60% at 15% 0%, #FBD9E3 0%, transparent 55%),
+      radial-gradient(120% 60% at 100% 10%, #F3C6D6 0%, transparent 50%),
+      var(--blush);
+    justify-content:flex-end;
+    min-height:100vh;
+    position:relative;
+    overflow:hidden;
+  }
+  .auth-top{
+    padding:64px 32px 40px;
+    text-align:center;
+    position:relative;
+    z-index:2;
+  }
+  .auth-mark{
+    width:56px;height:56px;border-radius:16px;
+    background:linear-gradient(150deg,var(--rose),var(--rose-deep));
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 18px;
+    font-size:26px;color:#fff;
+    box-shadow:0 12px 24px -8px rgba(140,20,66,0.45);
+  }
+  .auth-wordmark{font-size:2rem;font-weight:600;letter-spacing:-0.02em;color:var(--plum);}
+  .auth-tag{color:var(--ink-soft);font-size:0.92rem;margin-top:6px;letter-spacing:0.02em;}
+
+  .thread-svg{position:absolute;inset:0;width:100%;height:100%;opacity:0.55;z-index:1;}
+
+  .auth-sheet{
+    background:#fff;
+    border-radius:32px 32px 0 0;
+    padding:34px 28px 40px;
+    box-shadow:0 -20px 60px rgba(58,16,48,0.12);
+    position:relative;
+    z-index:2;
+  }
+  .auth-sheet h2{
+    font-family:'Fraunces',serif;
+    font-size:1.5rem;
+    margin:0 0 4px;
+    color:var(--plum);
+  }
+  .auth-sheet .sub{color:var(--ink-soft);font-size:0.88rem;margin-bottom:22px;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:0.76rem;font-weight:600;color:var(--ink-soft);margin-bottom:6px;letter-spacing:0.02em;text-transform:uppercase;}
+  .field input{
+    width:100%;padding:15px 16px;border-radius:14px;
+    border:1.5px solid var(--line);background:#FFFCFB;
+    font-size:0.98rem;font-family:'Inter',sans-serif;color:var(--ink);
+    outline:none;transition:border-color .15s;
+  }
+  .field input:focus{border-color:var(--rose);}
+
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;padding:16px;border-radius:16px;border:none;
+    font-family:'Inter',sans-serif;font-weight:600;font-size:0.98rem;
+    cursor:pointer;transition:transform .12s, box-shadow .12s;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--rose);color:#fff;box-shadow:0 10px 20px -8px rgba(200,29,91,0.55);}
+  .btn-primary:hover{background:var(--rose-deep);}
+  .btn-ghost{background:transparent;color:var(--rose-deep);border:1.5px solid var(--line);margin-top:10px;}
+  .btn-ghost:hover{border-color:var(--rose);}
+  .btn-dark{background:var(--plum);color:#fff;}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),#B8823C);color:#fff;}
+
+  .auth-switch{text-align:center;margin-top:18px;font-size:0.86rem;color:var(--ink-soft);}
+  .auth-switch a{color:var(--rose);font-weight:600;text-decoration:none;cursor:pointer;}
+
+  .auth-footnote{
+    text-align:center;font-size:0.72rem;color:var(--ink-soft);
+    margin-top:18px;display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+
+  .error-msg{
+    background:#FDEBEF;color:var(--rose-deep);font-size:0.82rem;
+    padding:10px 14px;border-radius:12px;margin-bottom:14px;display:none;
+  }
+
+  /* ---------- ONBOARDING / LINK SCREEN ---------- */
+  #screen-link{background:var(--blush);justify-content:center;padding:40px 24px;}
+  .link-card{
+    background:#fff;border-radius:28px;padding:32px 26px;
+    box-shadow:0 20px 50px -20px rgba(58,16,48,0.18);
+  }
+  .link-icon{font-size:2.4rem;text-align:center;margin-bottom:6px;}
+  .link-card h2{font-family:'Fraunces',serif;text-align:center;font-size:1.4rem;color:var(--plum);margin:0 0 6px;}
+  .link-card p.sub{text-align:center;color:var(--ink-soft);font-size:0.88rem;margin-bottom:24px;}
+  .code-display{
+    background:var(--blush);border:1.5px dashed var(--rose);
+    border-radius:16px;padding:18px;text-align:center;margin-bottom:16px;
+  }
+  .code-display .code{font-family:'Fraunces',serif;font-size:1.7rem;letter-spacing:0.08em;color:var(--rose-deep);font-weight:600;}
+  .divider-or{display:flex;align-items:center;gap:12px;margin:22px 0;color:var(--ink-soft);font-size:0.78rem;}
+  .divider-or::before,.divider-or::after{content:"";flex:1;height:1px;background:var(--line);}
+  .skip-link{text-align:center;margin-top:16px;font-size:0.82rem;color:var(--ink-soft);cursor:pointer;text-decoration:underline;}
+
+  /* ---------- MAIN APP ---------- */
+  #screen-main{background:var(--blush);}
+  .top-bar{
+    background:linear-gradient(135deg,var(--rose),var(--rose-deep));
+    color:#fff;padding:20px 22px 26px;
+    border-radius:0 0 28px 28px;
+    position:relative;overflow:hidden;
+  }
+  .top-bar::after{
+    content:"";position:absolute;right:-30px;top:-30px;width:150px;height:150px;
+    background:radial-gradient(circle,rgba(255,255,255,0.18),transparent 70%);
+    border-radius:50%;
+  }
+  .top-bar-row{display:flex;justify-content:space-between;align-items:flex-start;}
+  .couple-name{font-family:'Fraunces',serif;font-size:1.35rem;font-weight:600;}
+  .streak-pill{font-size:0.76rem;opacity:0.9;margin-top:4px;}
+  .icon-btn{
+    width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,0.18);
+    display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;font-size:0.95rem;
+  }
+
+  .main-scroll{flex:1;overflow-y:auto;padding:20px 18px 110px;}
+
+  /* Love Ledger — signature receipt-style card */
+  .ledger{
+    background:var(--cream);
+    border-radius:22px;
+    box-shadow:0 16px 40px -18px rgba(58,16,48,0.22);
+    position:relative;
+    margin-bottom:22px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .ledger-head{
+    padding:20px 22px 14px;
+    display:flex;justify-content:space-between;align-items:center;
+    border-bottom:1px dashed var(--line);
+  }
+  .ledger-head .label{font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
+  .ledger-head .date{font-size:0.72rem;color:var(--ink-soft);}
+  .ledger-body{padding:20px 22px 6px;}
+  .ledger-quote{font-family:'Fraunces',serif;font-style:italic;font-size:1.28rem;line-height:1.45;color:var(--plum);}
+  .ledger-foot{display:flex;justify-content:space-between;align-items:center;padding:16px 22px 20px;gap:10px;}
+  .ledger-balance{font-size:0.76rem;color:var(--ink-soft);}
+  .ledger-balance b{color:var(--rose-deep);font-size:1rem;font-family:'Fraunces',serif;}
+  .notch{position:absolute;width:18px;height:18px;background:var(--blush);border-radius:50%;top:64px;}
+  .notch.left{left:-9px;}
+  .notch.right{right:-9px;}
+
+  .section-title{display:flex;justify-content:space-between;align-items:center;margin:26px 0 14px;}
+  .section-title h3{font-family:'Fraunces',serif;font-size:1.15rem;margin:0;color:var(--plum);}
+  .section-title a{font-size:0.8rem;color:var(--rose);font-weight:600;text-decoration:none;cursor:pointer;}
+
+  .quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .quick-item{
+    background:#fff;border-radius:18px;padding:16px 8px;text-align:center;
+    box-shadow:0 8px 20px -12px rgba(58,16,48,0.15);cursor:pointer;
+    transition:transform .12s;
+  }
+  .quick-item:active{transform:scale(0.94);}
+  .quick-item i{font-size:1.3rem;color:var(--rose);margin-bottom:8px;display:block;}
+  .quick-item span{font-size:0.7rem;font-weight:600;color:var(--ink);}
+
+  .moment-card{
+    background:#fff;border-radius:20px;padding:18px;margin-bottom:14px;
+    box-shadow:0 8px 20px -14px rgba(58,16,48,0.18);
+    display:flex;gap:14px;
+  }
+  .moment-emoji{
+    width:46px;height:46px;border-radius:14px;background:var(--blush);
+    display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;
+  }
+  .moment-text{font-size:0.94rem;color:var(--ink);line-height:1.4;}
+  .moment-time{font-size:0.72rem;color:var(--ink-soft);margin-top:6px;}
+  .empty-state{text-align:center;padding:36px 20px;color:var(--ink-soft);}
+  .empty-state i{font-size:1.8rem;color:var(--line);margin-bottom:10px;display:block;}
+
+  /* Quote library */
+  .mood-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;}
+  .mood-tab{
+    flex-shrink:0;padding:9px 16px;border-radius:999px;font-size:0.8rem;font-weight:600;
+    background:#fff;color:var(--ink-soft);border:1.5px solid var(--line);cursor:pointer;
+  }
+  .mood-tab.active{background:var(--rose);color:#fff;border-color:var(--rose);}
+  .quote-lib-card{
+    background:#fff;border-radius:18px;padding:18px 20px;margin-bottom:12px;
+    box-shadow:0 6px 16px -12px rgba(58,16,48,0.15);
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+  }
+  .quote-lib-text{font-family:'Fraunces',serif;font-style:italic;color:var(--plum);font-size:0.98rem;line-height:1.4;}
+  .send-btn{
+    flex-shrink:0;width:38px;height:38px;border-radius:12px;background:var(--blush);
+    color:var(--rose);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;
+  }
+  .send-btn:active{transform:scale(0.9);}
+
+  /* Seasons tab */
+  .season-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .season-card{
+    background:#fff;border-radius:20px;padding:20px 16px;cursor:pointer;
+    box-shadow:0 8px 20px -14px rgba(58,16,48,0.18);border:2px solid transparent;
+  }
+  .season-card.current{border-color:var(--rose);}
+  .season-emoji{font-size:2rem;margin-bottom:8px;}
+  .season-name{font-weight:700;font-size:1.02rem;}
+  .season-when{font-size:0.72rem;color:var(--rose);margin:2px 0 10px;}
+  .season-line{font-size:0.82rem;color:var(--ink-soft);font-style:italic;}
+
+  /* You tab */
+  .profile-row{
+    background:#fff;border-radius:18px;padding:16px 18px;margin-bottom:10px;
+    display:flex;justify-content:space-between;align-items:center;
+    box-shadow:0 6px 16px -12px rgba(58,16,48,0.12);cursor:pointer;
+  }
+  .profile-row span{font-size:0.94rem;font-weight:500;}
+  .profile-row i{color:var(--ink-soft);}
+
+  /* Bottom nav */
+  .bottom-nav{
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+    width:100%;max-width:480px;background:#fff;
+    border-top:1px solid var(--line);
+    display:flex;justify-content:space-around;padding:10px 6px calc(10px + env(safe-area-inset-bottom));
+    z-index:40;
+  }
+  .nav-item{
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    color:var(--ink-soft);font-size:0.66rem;font-weight:600;cursor:pointer;
+    padding:4px 14px;
+  }
+  .nav-item i{font-size:1.15rem;}
+  .nav-item.active{color:var(--rose);}
+
+  /* Modal */
+  .modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(58,16,48,0.55);
+    z-index:100;align-items:flex-end;justify-content:center;
+  }
+  .modal-overlay.active{display:flex;}
+  .modal-sheet{
+    background:#fff;width:100%;max-width:480px;border-radius:26px 26px 0 0;
+    padding:26px 22px calc(26px + env(safe-area-inset-bottom));
+    animation:slideUp .25s ease;
+  }
+  @keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .modal-head h3{font-family:'Fraunces',serif;font-size:1.2rem;color:var(--plum);margin:0;}
+  .modal-close{font-size:1.4rem;color:var(--ink-soft);cursor:pointer;}
+  textarea.mood-textarea{
+    width:100%;min-height:100px;border:1.5px solid var(--line);border-radius:16px;
+    padding:14px;font-family:'Inter',sans-serif;font-size:0.94rem;resize:none;outline:none;margin-bottom:16px;
+  }
+  textarea.mood-textarea:focus{border-color:var(--rose);}
+
+  .toast{
+    position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+    background:var(--plum);color:#fff;padding:12px 22px;border-radius:14px;
+    font-size:0.86rem;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    opacity:0;transition:opacity .25s, transform .25s;pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,-6px);}
+
+  .loader{display:flex;align-items:center;justify-content:center;min-height:100vh;color:var(--rose);font-size:1.4rem;}
+</style>
 </head>
-<body class="min-h-screen">
+<body>
 
-<div class="max-w-xl mx-auto p-6">
-    <div class="text-center py-10">
-        <span class="text-6xl">💞</span>
-        <h1 class="text-4xl font-bold text-rose-600">HeartBloom</h1>
-        <p class="text-pink-400">Love in every moment</p>
+<div id="app-shell">
+
+  <!-- ================= AUTH SCREEN ================= -->
+  <div class="screen active" id="screen-auth">
+    <svg class="thread-svg" viewBox="0 0 400 500" preserveAspectRatio="none">
+      <path d="M-20,220 C80,180 120,320 220,280 C320,240 340,380 430,340" stroke="#F3B9CB" stroke-width="2" fill="none" opacity="0.7"/>
+      <path d="M-20,300 C90,260 140,400 240,360 C330,325 360,440 430,410" stroke="#F3B9CB" stroke-width="2" fill="none" opacity="0.5"/>
+    </svg>
+    <div class="auth-top">
+      <div class="auth-mark"><i class="fas fa-heart"></i></div>
+      <div class="auth-wordmark">HeartBloom</div>
+      <div class="auth-tag">Love, kept beautifully</div>
     </div>
 
-    <div id="auth" class="card p-8">
-        <input id="email" type="email" placeholder="Email Address" class="w-full p-5 border border-pink-200 rounded-2xl mb-4">
-        <input id="password" type="password" placeholder="Password" class="w-full p-5 border border-pink-200 rounded-2xl mb-6">
-        <button onclick="signUp()" class="w-full bg-rose-600 text-white py-5 rounded-3xl mb-3">Create Account</button>
-        <button onclick="login()" class="w-full border border-rose-500 text-rose-600 py-5 rounded-3xl">Login</button>
-    </div>
-
-    <div id="main" class="hidden mt-8">
-        <button onclick="logout()" class="text-red-500">Logout</button>
-        <div class="card p-6 mt-6">
-            <textarea id="postText" class="w-full h-36 p-5 border border-pink-200 rounded-3xl" placeholder="Share your love moment..."></textarea>
-            <button onclick="postMoment()" class="w-full mt-6 bg-rose-600 text-white py-5 rounded-3xl">Share Moment 💕</button>
+    <div class="auth-sheet">
+      <!-- LOGIN VIEW -->
+      <div id="auth-login-view">
+        <h2>Welcome back</h2>
+        <p class="sub">Your love notes have been waiting for you.</p>
+        <div class="error-msg" id="login-error"></div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="you@email.com" autocomplete="email">
         </div>
-        <div id="feed" class="mt-10 space-y-6"></div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary" onclick="doLogin()"><i class="fas fa-arrow-right-to-bracket"></i> Log in</button>
+        <div class="auth-switch">New here? <a onclick="showSignup()">Create an account</a></div>
+      </div>
+
+      <!-- SIGNUP VIEW -->
+      <div id="auth-signup-view" style="display:none;">
+        <h2>Create your account</h2>
+        <p class="sub">One step closer to a sweeter connection.</p>
+        <div class="error-msg" id="signup-error"></div>
+        <div class="field">
+          <label>Your name</label>
+          <input type="text" id="signup-name" placeholder="Full name">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="signup-email" placeholder="you@email.com" autocomplete="email">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="signup-password" placeholder="At least 6 characters" autocomplete="new-password">
+        </div>
+        <button class="btn btn-primary" onclick="doSignup()"><i class="fas fa-heart"></i> Create account</button>
+        <div class="auth-switch">Already have an account? <a onclick="showLogin()">Log in</a></div>
+      </div>
+
+      <div class="auth-footnote"><i class="fas fa-lock"></i> Your moments stay private between you two</div>
     </div>
-</div>
+  </div>
 
-<script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyA6XhN7vkrjL8eNEOyBOVXf04Mf_2gAPnc",
-      authDomain: "heartbloom-love.firebaseapp.com",
-      projectId: "heartbloom-love",
-      storageBucket: "heartbloom-love.firebasestorage.app",
-      messagingSenderId: "411468099332",
-      appId: "1:411468099332:web:0c588e611dbc0d06102a51",
-      measurementId: "G-7EE4Q0S43H"
-    };
+  <!-- ================= LINK PARTNER SCREEN ================= -->
+  <div class="screen" id="screen-link">
+    <div class="link-card">
+      <div class="link-icon">💞</div>
+      <h2>Link with your partner</h2>
+      <p class="sub">Generate a code and share it with them, or enter the code they gave you.</p>
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+      <div id="my-code-block" style="display:none;">
+        <div class="code-display">
+          <div class="code" id="my-code-text">HB-000000</div>
+        </div>
+        <button class="btn btn-ghost" onclick="copyCode()"><i class="fas fa-copy"></i> Copy code to share</button>
+      </div>
+      <button class="btn btn-primary" id="generate-code-btn" onclick="generateCode()">
+        <i class="fas fa-wand-magic-sparkles"></i> Generate my code
+      </button>
 
-    function signUp() {
-        const email = document.getElementById("email").value;
-        const pass = document.getElementById("password").value;
-        auth.createUserWithEmailAndPassword(email, pass).then(() => alert("Account created!")).catch(e => alert(e.message));
-    }
+      <div class="divider-or">or</div>
 
-    function login() {
-        const email = document.getElementById("email").value;
-        const pass = document.getElementById("password").value;
-        auth.signInWithEmailAndPassword(email, pass).then(() => {
-            document.getElementById("auth").classList.add("hidden");
-            document.getElementById("main").classList.remove("hidden");
-            loadFeed();
-        }).catch(e => alert(e.message));
-    }
+      <div class="field">
+        <label>Enter partner's code</label>
+        <input type="text" id="partner-code-input" placeholder="HB-000000" style="text-transform:uppercase;">
+      </div>
+      <button class="btn btn-dark" onclick="joinWithCode()"><i class="fas fa-link"></i> Connect with partner</button>
 
-    function logout() {
-        auth.signOut();
-        location.reload();
-    }
+      <div class="skip-link" onclick="skipLinking()">I'll do this later</div>
+    </div>
+  </div>
 
-    function postMoment() {
-        const text = document.getElementById("postText").value;
-        if (text) {
-            db.collection("posts").add({text: text, time: Date.now()}).then(() => {
-                alert("💕 Posted!");
-                document.getElementById("postText").value = "";
-                loadFeed();
-            });
-        }
-    }
+  <!-- ================= MAIN APP ================= -->
+  <div class="screen" id="screen-main">
+    <div class="top-bar">
+      <div class="top-bar-row">
+        <div>
+          <div class="couple-name" id="couple-name-label">Your Love Story</div>
+          <div class="streak-pill" id="streak-label"><i class="fas fa-fire"></i> Day 1 together</div>
+        </div>
+        <div class="icon-btn" onclick="openSettings()"><i class="fas fa-gear"></i></div>
+      </div>
+    </div>
 
-    function loadFeed() {
-        db.collection("posts").orderBy("time", "desc").limit(10).get().then(snapshot => {
-            let html = "";
-            snapshot.forEach(doc => html += `<div class="card p-6">${doc.data().text}</div>`);
-            document.getElementById("feed").innerHTML = html || "<p>No moments yet</p>";
-        });
-    }
-</script>
-</body>
-</html>
+    <div class="main-scroll">
+
+      <!-- HOME TAB -->
+      <div id="tab-home">
+        <div class="ledger">
+          <div class="notch left"></div><div class="notch right"></div>
+          <div class="ledger-head">
+            <span class="label">Today's love note</span>
+            <span class="date" id="ledger-date">—</span>
+          </div>
+          <div class="ledger-body">
+            <p class="ledger-quote" id="ledger-quote-text">"Loading a little love for you..."</p>
+          </div>
+          <div class="ledger-foot">
+            <div class="ledger-balance">Streak balance<br><b id="ledger-streak">1 day</b></div>
+            <button class="btn btn-primary" style="width:auto;padding:12px 20px;" onclick="sendTodayNote()"><i class="fas fa-paper-plane"></i> Send</button>
+          </div>
+        </div>
+
+        <div class="section-title"><h3>Share a moment</h3></div>
+        <div class="quick-grid">
+          <div class="quick-item" onclick="quickMoment('photo')"><i class="fas fa-camera"></i><span>Photo</span></div>
+          <div class="quick-item" onclick="quickMoment('voice')"><i class="fas fa-microphone"></i><span>Voice</span></div>
+          <div class="quick-item" onclick="quickMoment('hug')"><i class="fas fa-hand-holding-heart"></i><span>Hug</span></div>
+          <div class="quick-item" onclick="quickMoment('date')"><i class="fas fa-calendar-heart"></i><span>Plan date</span></div>
+        </div>
+
+        <div class="section-title">
+          <h3>Recent moments</h3>
+          <a onclick="switchTab('memories')">See all</a>
+        </div>
+        <div id="home-moments-preview"></div>
+      </div>
+
+      <!-- SEASONS TAB -->
+      <div id="tab-seasons" style="display:none;">
+        <div class="section-title"><h3>Our seasons of love</h3></div>
+        <div class="season-grid" id="season-grid"></div>
+
+        <div class="section-title"><h3>Notes for right now</h3></div>
+        <div class="mood-tabs" id="mood-tabs"></div>
+        <div id="quote-library-list"></div>
+      </div>
+
+      <!-- MEMORIES TAB -->
+      <di
