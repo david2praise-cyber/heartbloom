@@ -7,30 +7,30 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { background: linear-gradient(135deg, #fdf2f8, #fce7f3); font-family: system-ui; }
-        .card { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(225,29,72,0.1); }
+        .card { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(225,29,72,0.15); }
     </style>
 </head>
 <body class="min-h-screen">
 
 <div class="max-w-xl mx-auto p-6">
-    <div class="text-center py-10">
+    <div class="text-center py-12">
         <span class="text-6xl">💞</span>
-        <h1 class="text-4xl font-bold text-rose-600">HeartBloom</h1>
-        <p class="text-pink-400">Love in every moment</p>
+        <h1 class="text-5xl font-bold text-rose-600">HeartBloom</h1>
+        <p class="text-pink-400 mt-2">Love in every moment</p>
     </div>
 
     <div id="auth" class="card p-8">
         <input id="email" type="email" placeholder="Email Address" class="w-full p-5 border border-pink-200 rounded-2xl mb-4">
         <input id="password" type="password" placeholder="Password" class="w-full p-5 border border-pink-200 rounded-2xl mb-6">
-        <button onclick="signUp()" class="w-full bg-rose-600 text-white py-5 rounded-3xl mb-3">Create Account</button>
-        <button onclick="login()" class="w-full border border-rose-500 text-rose-600 py-5 rounded-3xl">Login</button>
+        <button onclick="signUp()" class="w-full bg-rose-600 text-white py-5 rounded-3xl mb-3 text-lg">Create Account</button>
+        <button onclick="login()" class="w-full border-2 border-rose-500 text-rose-600 py-5 rounded-3xl text-lg">Login</button>
     </div>
 
-    <div id="main" class="hidden">
+    <div id="main" class="hidden mt-8">
         <button onclick="logout()" class="text-red-500">Logout</button>
         <div class="card p-6 mt-8">
-            <textarea id="postText" class="w-full h-36 p-5 border border-pink-200 rounded-3xl" placeholder="Share your love moment..."></textarea>
-            <button onclick="postMoment()" class="w-full mt-6 bg-rose-600 text-white py-5 rounded-3xl">Share Moment 💕</button>
+            <textarea id="postText" class="w-full h-36 p-5 border border-pink-200 rounded-3xl" placeholder="Write something sweet..."></textarea>
+            <button onclick="postMoment()" class="w-full mt-6 bg-gradient-to-r from-rose-500 to-pink-500 text-white py-5 rounded-3xl text-lg">Share Moment 💕</button>
         </div>
         <div id="feed" class="mt-10 space-y-6"></div>
     </div>
@@ -41,10 +41,11 @@
     const supabaseKey = 'sb_publishable_n03k7xQ2C_fvlhBdUmYcEg_iPEv0jC5';
     const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
 
+    // Rest of the script same as before
     function signUp() {
         const email = document.getElementById("email").value;
         const pass = document.getElementById("password").value;
-        supabase.auth.signUp({email, password: pass}).then(() => alert("Check your email to confirm")).catch(e => alert(e.message));
+        supabase.auth.signUp({email, password: pass}).then(() => alert("Check email")).catch(e => alert(e.message));
     }
 
     function login() {
@@ -64,13 +65,11 @@
 
     function postMoment() {
         const text = document.getElementById("postText").value;
-        if (text) {
-            supabase.from('posts').insert({text: text}).then(() => {
-                alert("💕 Posted!");
-                document.getElementById("postText").value = "";
-                loadFeed();
-            });
-        }
+        if (text) supabase.from('posts').insert({text}).then(() => {
+            alert("💕 Shared!");
+            document.getElementById("postText").value = "";
+            loadFeed();
+        });
     }
 
     function loadFeed() {
