@@ -1,291 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>HeartBloom — Love in Every Season</title>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
-  :root{
-    --blush:#FFF3F6; --cream:#FFFBF8; --rose:#C81D5B; --rose-deep:#8C1442;
-    --plum:#3A1030; --gold:#CB9A55; --ink:#2B1620; --ink-soft:#7A5C68; --line:#F1D9E0;
-    --green:#2E9E5B;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{font-family:'Inter',system-ui,sans-serif;background:var(--blush);color:var(--ink);-webkit-font-smoothing:antialiased;}
-  .display{font-family:'Fraunces',serif;}
-  ::selection{background:var(--rose);color:#fff;}
-
-  #app-shell{max-width:480px;margin:0 auto;min-height:100vh;background:var(--cream);position:relative;display:flex;flex-direction:column;box-shadow:0 0 60px rgba(140,20,66,0.08);}
-  .screen{display:none;flex-direction:column;min-height:100vh;}
-  .screen.active{display:flex;}
-
-  /* ---------- AUTH ---------- */
-  #screen-auth{background:radial-gradient(120% 60% at 15% 0%, #FBD9E3 0%, transparent 55%),radial-gradient(120% 60% at 100% 10%, #F3C6D6 0%, transparent 50%),var(--blush);justify-content:flex-end;min-height:100vh;position:relative;overflow:hidden;}
-  .auth-top{padding:52px 32px 30px;text-align:center;position:relative;z-index:2;}
-  .auth-mark{width:52px;height:52px;border-radius:16px;background:linear-gradient(150deg,var(--rose),var(--rose-deep));display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px;color:#fff;box-shadow:0 12px 24px -8px rgba(140,20,66,0.45);}
-  .auth-wordmark{font-size:1.8rem;font-weight:600;letter-spacing:-0.02em;color:var(--plum);}
-  .auth-tag{color:var(--ink-soft);font-size:0.88rem;margin-top:4px;}
-  .thread-svg{position:absolute;inset:0;width:100%;height:100%;opacity:0.5;z-index:1;}
-  .auth-sheet{background:#fff;border-radius:32px 32px 0 0;padding:30px 26px 40px;box-shadow:0 -20px 60px rgba(58,16,48,0.12);position:relative;z-index:2;max-height:78vh;overflow-y:auto;}
-  .auth-sheet h2{font-family:'Fraunces',serif;font-size:1.4rem;margin:0 0 4px;color:var(--plum);}
-  .auth-sheet .sub{color:var(--ink-soft);font-size:0.85rem;margin-bottom:18px;}
-  .field{margin-bottom:13px;}
-  .field label{display:block;font-size:0.72rem;font-weight:600;color:var(--ink-soft);margin-bottom:5px;letter-spacing:0.02em;text-transform:uppercase;}
-  .field input, .field select, .field textarea{width:100%;padding:14px 15px;border-radius:14px;border:1.5px solid var(--line);background:#FFFCFB;font-size:0.95rem;font-family:'Inter',sans-serif;color:var(--ink);outline:none;transition:border-color .15s;}
-  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--rose);}
-  .checkbox-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:16px;font-size:0.8rem;color:var(--ink-soft);}
-  .checkbox-row input{margin-top:3px;}
-  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:16px;border:none;font-family:'Inter',sans-serif;font-weight:600;font-size:0.94rem;cursor:pointer;transition:transform .12s;}
-  .btn:active{transform:scale(0.98);}
-  .btn-primary{background:var(--rose);color:#fff;box-shadow:0 10px 20px -8px rgba(200,29,91,0.55);}
-  .btn-ghost{background:transparent;color:var(--rose-deep);border:1.5px solid var(--line);margin-top:8px;}
-  .btn-dark{background:var(--plum);color:#fff;}
-  .btn-sm{padding:9px 14px;font-size:0.78rem;width:auto;border-radius:12px;}
-  .auth-switch{text-align:center;margin-top:16px;font-size:0.84rem;color:var(--ink-soft);}
-  .auth-switch a{color:var(--rose);font-weight:600;text-decoration:none;cursor:pointer;}
-  .error-msg{background:#FDEBEF;color:var(--rose-deep);font-size:0.8rem;padding:9px 13px;border-radius:12px;margin-bottom:12px;display:none;}
-
-  /* ---------- MAIN SHELL ---------- */
-  #screen-main{background:var(--blush);}
-  .top-nav{background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;padding:10px 6px;position:sticky;top:0;z-index:50;}
-  .top-nav .n-item{padding:8px 10px;border-radius:10px;color:var(--ink-soft);font-size:1.15rem;cursor:pointer;position:relative;}
-  .top-nav .n-item.active{color:var(--rose);}
-  .top-nav .n-item.active::after{content:"";position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:22px;height:3px;background:var(--rose);border-radius:2px;}
-  .top-nav .avatar{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--rose),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.75rem;font-weight:700;}
-
-  .page{display:none;flex:1;flex-direction:column;overflow:hidden;}
-  .page.active{display:flex;}
-  .page-scroll{flex:1;overflow-y:auto;padding:16px 16px 30px;}
-  .page-head{padding:16px 18px 4px;}
-  .page-head h1{font-family:'Fraunces',serif;font-size:1.5rem;margin:0;color:var(--plum);}
-
-  .section-title{display:flex;justify-content:space-between;align-items:center;margin:20px 0 12px;}
-  .section-title h3{font-family:'Fraunces',serif;font-size:1.05rem;margin:0;color:var(--plum);}
-  .section-title a{font-size:0.78rem;color:var(--rose);font-weight:600;text-decoration:none;cursor:pointer;}
-
-  .card{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 8px 20px -14px rgba(58,16,48,0.18);}
-  .empty-state{text-align:center;padding:30px 16px;color:var(--ink-soft);}
-  .empty-state i{font-size:1.6rem;color:var(--line);margin-bottom:8px;display:block;}
-  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--plum);color:#fff;padding:12px 22px;border-radius:14px;font-size:0.84rem;z-index:300;box-shadow:0 10px 30px rgba(0,0,0,0.25);opacity:0;transition:opacity .25s, transform .25s;pointer-events:none;max-width:90%;text-align:center;}
-  .toast.show{opacity:1;transform:translate(-50%,-6px);}
-
-  /* Composer / Home feed */
-  .composer{display:flex;gap:10px;align-items:flex-start;}
-  .composer textarea{flex:1;border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:0.9rem;resize:none;min-height:50px;outline:none;}
-  .composer textarea:focus{border-color:var(--rose);}
-  .post-card .post-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-  .post-avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--rose),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.95rem;flex-shrink:0;}
-  .post-name{font-weight:700;font-size:0.92rem;}
-  .post-meta{font-size:0.72rem;color:var(--ink-soft);}
-  .post-text{font-size:0.92rem;line-height:1.45;margin:4px 0 10px;}
-  .post-actions{display:flex;gap:20px;border-top:1px solid var(--line);padding-top:10px;}
-  .post-actions span{font-size:0.82rem;color:var(--ink-soft);cursor:pointer;display:flex;align-items:center;gap:6px;}
-  .post-actions span.liked{color:var(--rose);font-weight:600;}
-
-  /* Discover */
-  .status-pill{display:inline-block;font-size:0.68rem;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--blush);color:var(--rose-deep);margin-left:6px;}
-  .discover-card{display:flex;gap:12px;align-items:center;}
-  .discover-info{flex:1;}
-  .discover-name{font-weight:700;font-size:0.94rem;}
-  .discover-bio{font-size:0.8rem;color:var(--ink-soft);margin-top:2px;}
-  .discover-actions{display:flex;gap:8px;margin-top:10px;}
-
-  /* Friends */
-  .req-card{display:flex;align-items:center;gap:12px;}
-  .req-actions{display:flex;gap:8px;margin-left:auto;}
-
-  /* Groups */
-  .group-card{display:flex;gap:12px;align-items:center;}
-  .group-icon{width:46px;height:46px;border-radius:14px;background:var(--blush);display:flex;align-items:center;justify-content:center;color:var(--rose);font-size:1.2rem;flex-shrink:0;}
-  .group-info{flex:1;}
-  .group-name{font-weight:700;font-size:0.92rem;}
-  .group-meta{font-size:0.76rem;color:var(--ink-soft);}
-
-  /* Chats list */
-  .chat-row{display:flex;align-items:center;gap:12px;padding:12px 4px;cursor:pointer;border-bottom:1px solid var(--line);}
-  .chat-row:last-child{border-bottom:none;}
-  .chat-avatar{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--rose),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0;}
-  .chat-preview{flex:1;min-width:0;}
-  .chat-name{font-weight:700;font-size:0.92rem;}
-  .chat-last{font-size:0.8rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .chat-time{font-size:0.7rem;color:var(--ink-soft);flex-shrink:0;}
-
-  /* Chat thread screen */
-  #screen-thread{background:var(--blush);}
-  .thread-head{background:#fff;border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:30;}
-  .thread-head i.fa-arrow-left{cursor:pointer;color:var(--ink-soft);font-size:1.05rem;}
-  .thread-head .name{font-weight:700;font-size:0.98rem;flex:1;}
-  .thread-head .icon-action{color:var(--rose);font-size:1.1rem;cursor:pointer;padding:6px;}
-  .thread-scroll{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
-  .bubble{max-width:75%;padding:10px 14px;border-radius:16px;font-size:0.88rem;line-height:1.4;}
-  .bubble.mine{align-self:flex-end;background:var(--rose);color:#fff;border-bottom-right-radius:4px;}
-  .bubble.theirs{align-self:flex-start;background:#fff;color:var(--ink);border-bottom-left-radius:4px;box-shadow:0 4px 12px -8px rgba(58,16,48,0.2);}
-  .bubble audio{width:200px;height:36px;}
-  .bubble-time{font-size:0.65rem;opacity:0.7;margin-top:4px;}
-  .thread-input-row{background:#fff;border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:8px;align-items:center;}
-  .thread-input-row input{flex:1;border:1.5px solid var(--line);border-radius:20px;padding:11px 16px;font-size:0.9rem;outline:none;}
-  .thread-input-row input:focus{border-color:var(--rose);}
-  .round-btn{width:42px;height:42px;border-radius:50%;background:var(--rose);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
-  .round-btn.ghost{background:var(--blush);color:var(--rose);}
-  .round-btn.recording{background:var(--rose-deep);animation:pulse 1s infinite;}
-  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(140,20,66,0.5);}50%{box-shadow:0 0 0 8px rgba(140,20,66,0);}}
-
-  /* Call screen */
-  #screen-call{background:var(--plum);justify-content:center;align-items:center;}
-  .call-video-wrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;}
-  #remote-video{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;background:#1a0715;}
-  #local-video{width:110px;height:150px;object-fit:cover;border-radius:16px;position:absolute;bottom:130px;right:18px;border:2px solid rgba(255,255,255,0.4);z-index:5;}
-  .call-info{position:absolute;top:60px;color:#fff;text-align:center;z-index:5;}
-  .call-info .cname{font-family:'Fraunces',serif;font-size:1.4rem;}
-  .call-info .cstatus{font-size:0.85rem;opacity:0.8;margin-top:4px;}
-  .call-controls{position:absolute;bottom:36px;left:0;right:0;display:flex;justify-content:center;gap:20px;z-index:5;}
-  .call-btn{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;border:none;}
-  .call-btn.end{background:var(--rose);}
-
-  /* Groups thread reuses chat thread styles */
-
-  /* Profile / settings */
-  .profile-row{background:#fff;border-radius:16px;padding:15px 17px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 6px 16px -12px rgba(58,16,48,0.12);cursor:pointer;}
-  .profile-row span{font-size:0.9rem;font-weight:500;}
-  .profile-row i.chev{color:var(--ink-soft);}
-
-  .schedule-card{display:flex;justify-content:space-between;align-items:center;}
-  .schedule-info b{font-size:0.9rem;}
-  .schedule-info div{font-size:0.76rem;color:var(--ink-soft);margin-top:2px;}
-  .toggle{width:42px;height:24px;border-radius:20px;background:var(--line);position:relative;cursor:pointer;flex-shrink:0;}
-  .toggle.on{background:var(--rose);}
-  .toggle .dot{width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .15s;}
-  .toggle.on .dot{left:21px;}
-
-  /* Modal */
-  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(58,16,48,0.55);z-index:200;align-items:flex-end;justify-content:center;}
-  .modal-overlay.active{display:flex;}
-  .modal-sheet{background:#fff;width:100%;max-width:480px;border-radius:26px 26px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));animation:slideUp .25s ease;max-height:85vh;overflow-y:auto;}
-  @keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-  .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-  .modal-head h3{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--plum);margin:0;}
-  .modal-close{font-size:1.3rem;color:var(--ink-soft);cursor:pointer;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartBloom 💕</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { background: linear-gradient(135deg, #fdf2f8, #fce7f3); font-family: system-ui; }
+        .card { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(225,29,72,0.1); }
+    </style>
 </head>
-<body>
-<div id="app-shell">
+<body class="min-h-screen">
 
-  <!-- ================= AUTH ================= -->
-  <div class="screen active" id="screen-auth">
-    <svg class="thread-svg" viewBox="0 0 400 500" preserveAspectRatio="none">
-      <path d="M-20,220 C80,180 120,320 220,280 C320,240 340,380 430,340" stroke="#F3B9CB" stroke-width="2" fill="none" opacity="0.7"/>
-      <path d="M-20,300 C90,260 140,400 240,360 C330,325 360,440 430,410" stroke="#F3B9CB" stroke-width="2" fill="none" opacity="0.5"/>
-    </svg>
-    <div class="auth-top">
-      <div class="auth-mark"><i class="fas fa-heart"></i></div>
-      <div class="auth-wordmark">HeartBloom</div>
-      <div class="auth-tag">Love, kept beautifully</div>
+<div class="max-w-xl mx-auto p-6">
+    <div class="text-center py-10">
+        <span class="text-6xl">💞</span>
+        <h1 class="text-4xl font-bold text-rose-600">HeartBloom</h1>
+        <p class="text-pink-400">Love in every moment</p>
     </div>
-    <div class="auth-sheet">
-      <div id="auth-login-view">
-        <h2>Welcome back</h2>
-        <p class="sub">Your community has been waiting for you.</p>
-        <div class="error-msg" id="login-error"></div>
-        <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@email.com"></div>
-        <div class="field"><label>Password</label><input type="password" id="login-password" placeholder="••••••••"></div>
-        <button class="btn btn-primary" onclick="doLogin()"><i class="fas fa-arrow-right-to-bracket"></i> Log in</button>
-        <div class="auth-switch">New here? <a onclick="showSignup()">Create an account</a></div>
-      </div>
-      <div id="auth-signup-view" style="display:none;">
-        <h2>Create your account</h2>
-        <p class="sub">Find love, keep love, grow together.</p>
-        <div class="error-msg" id="signup-error"></div>
-        <div class="field"><label>Your name</label><input type="text" id="signup-name" placeholder="Full name"></div>
-        <div class="field"><label>Email</label><input type="email" id="signup-email" placeholder="you@email.com"></div>
-        <div class="field"><label>Password</label><input type="password" id="signup-password" placeholder="At least 6 characters"></div>
-        <div class="field">
-          <label>Relationship status</label>
-          <select id="signup-status">
-            <option value="single">Single — open to connecting</option>
-            <option value="relationship">In a relationship</option>
-            <option value="private">Prefer not to say</option>
-          </select>
+
+    <div id="auth" class="card p-8">
+        <input id="email" type="email" placeholder="Email Address" class="w-full p-5 border border-pink-200 rounded-2xl mb-4">
+        <input id="password" type="password" placeholder="Password" class="w-full p-5 border border-pink-200 rounded-2xl mb-6">
+        <button onclick="signUp()" class="w-full bg-rose-600 text-white py-5 rounded-3xl mb-3">Create Account</button>
+        <button onclick="login()" class="w-full border border-rose-500 text-rose-600 py-5 rounded-3xl">Login</button>
+    </div>
+
+    <div id="main" class="hidden">
+        <button onclick="logout()" class="text-red-500">Logout</button>
+        <div class="card p-6 mt-8">
+            <textarea id="postText" class="w-full h-36 p-5 border border-pink-200 rounded-3xl" placeholder="Share your love moment..."></textarea>
+            <button onclick="postMoment()" class="w-full mt-6 bg-rose-600 text-white py-5 rounded-3xl">Share Moment 💕</button>
         </div>
-        <div class="field"><label>Short bio (optional)</label><input type="text" id="signup-bio" placeholder="A line about you"></div>
-        <div class="checkbox-row">
-          <input type="checkbox" id="signup-adult">
-          <span>I confirm I am 18 years or older and agree to treat others with respect and honesty on HeartBloom.</span>
-        </div>
-        <button class="btn btn-primary" onclick="doSignup()"><i class="fas fa-heart"></i> Create account</button>
-        <div class="auth-switch">Already have an account? <a onclick="showLogin()">Log in</a></div>
-      </div>
-      <div class="auth-switch" style="margin-top:6px;"><i class="fas fa-lock"></i> Private chats stay private. Public posts are visible to the community.</div>
+        <div id="feed" class="mt-10 space-y-6"></div>
     </div>
-  </div>
+</div>
 
-  <!-- ================= MAIN APP ================= -->
-  <div class="screen" id="screen-main">
-    <div class="top-nav">
-      <div class="n-item active" data-page="home" onclick="switchPage('home')"><i class="fas fa-house"></i></div>
-      <div class="n-item" data-page="discover" onclick="switchPage('discover')"><i class="fas fa-compass"></i></div>
-      <div class="n-item" data-page="friends" onclick="switchPage('friends')"><i class="fas fa-user-group"></i></div>
-      <div class="n-item" data-page="groups" onclick="switchPage('groups')"><i class="fas fa-layer-group"></i></div>
-      <div class="n-item" data-page="chats" onclick="switchPage('chats')"><i class="fas fa-comment"></i></div>
-      <div class="n-item" data-page="notifications" onclick="switchPage('notifications')"><i class="fas fa-bell"></i></div>
-      <div class="n-item" onclick="switchPage('profile')"><div class="avatar" id="nav-avatar">•</div></div>
-    </div>
+<script>
+    const supabaseUrl = 'https://bylnhodwrptjmksvyvqv.supabase.co';
+    const supabaseKey = 'sb_publishable_n03k7xQ2C_fvlhBdUmYcEg_iPEv0jC5';
+    const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
 
-    <!-- HOME -->
-    <div class="page active" id="page-home">
-      <div class="page-scroll">
-        <div class="card">
-          <div class="composer">
-            <textarea id="post-input" placeholder="Share something with the community..." rows="2"></textarea>
-          </div>
-          <div style="display:flex;justify-content:flex-end;margin-top:10px;">
-            <button class="btn btn-primary btn-sm" onclick="createPost()"><i class="fas fa-paper-plane"></i> Post</button>
-          </div>
-        </div>
-        <div class="section-title"><h3>Community wall</h3></div>
-        <div id="public-feed"></div>
-      </div>
-    </div>
+    function signUp() {
+        const email = document.getElementById("email").value;
+        const pass = document.getElementById("password").value;
+        supabase.auth.signUp({email, password: pass}).then(() => alert("Check your email to confirm")).catch(e => alert(e.message));
+    }
 
-    <!-- DISCOVER -->
-    <div class="page" id="page-discover">
-      <div class="page-head"><h1>Discover</h1><p style="color:var(--ink-soft);font-size:0.85rem;margin:4px 0 0;">People open to a genuine connection.</p></div>
-      <div class="page-scroll" id="discover-list"></div>
-    </div>
+    function login() {
+        const email = document.getElementById("email").value;
+        const pass = document.getElementById("password").value;
+        supabase.auth.signInWithPassword({email, password: pass}).then(() => {
+            document.getElementById("auth").classList.add("hidden");
+            document.getElementById("main").classList.remove("hidden");
+            loadFeed();
+        }).catch(e => alert(e.message));
+    }
 
-    <!-- FRIENDS -->
-    <div class="page" id="page-friends">
-      <div class="page-head"><h1>Friends</h1></div>
-      <div class="page-scroll">
-        <div class="section-title"><h3>Requests</h3></div>
-        <div id="friend-requests-list"></div>
-        <div class="section-title"><h3>Your friends</h3></div>
-        <div id="friends-list"></div>
-      </div>
-    </div>
+    function logout() {
+        supabase.auth.signOut();
+        location.reload();
+    }
 
-    <!-- GROUPS -->
-    <div class="page" id="page-groups">
-      <div class="page-head" style="display:flex;justify-content:space-between;align-items:center;">
-        <h1>Groups</h1>
-        <button class="btn btn-primary btn-sm" onclick="openCreateGroupModal()"><i class="fas fa-plus"></i> Create</button>
-      </div>
-      <div class="page-scroll">
-        <div class="section-title"><h3>Your groups</h3></div>
-        <div id="my-groups-list"></div>
-        <div class="section-title"><h3>Discover groups</h3></div>
-        <div id="all-groups-list"></div>
-      </div>
-    </div>
+    function postMoment() {
+        const text = document.getElementById("postText").value;
+        if (text) {
+            supabase.from('posts').insert({text: text}).then(() => {
+                alert("💕 Posted!");
+                document.getElementById("postText").value = "";
+                loadFeed();
+            });
+        }
+    }
 
-    <!-- CHATS -->
-    <div class="page" id="page-chats">
-      <div class="page-head"><h1>Chats</h1></div>
-      <div class="page-scroll">
-        <div class="card" style="padding:6p
+    function loadFeed() {
+        supabase.from('posts').select('*').order('created_at', {ascending: false}).then(({data}) => {
+            let html = "";
+            data.forEach(d => html += `<div class="card p-6">${d.text}</div>`);
+            document.getElementById("feed").innerHTML = html || "<p>No moments yet</p>";
+        });
+    }
+</script>
+</body>
+</html>
