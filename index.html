@@ -10,42 +10,42 @@
         .card { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(225,29,72,0.15); }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen p-6">
 
-<div class="max-w-xl mx-auto p-6">
+<div class="max-w-xl mx-auto">
     <div class="text-center py-12">
         <span class="text-6xl">💞</span>
         <h1 class="text-5xl font-bold text-rose-600">HeartBloom</h1>
-        <p class="text-pink-400 mt-2">Love in every moment</p>
+        <p class="text-pink-400">Love in every moment</p>
     </div>
 
     <div id="auth" class="card p-8">
         <input id="email" type="email" placeholder="Email Address" class="w-full p-5 border border-pink-200 rounded-2xl mb-4">
         <input id="password" type="password" placeholder="Password" class="w-full p-5 border border-pink-200 rounded-2xl mb-6">
-        <button onclick="signUp()" class="w-full bg-rose-600 text-white py-5 rounded-3xl mb-3 text-lg">Create Account</button>
-        <button onclick="login()" class="w-full border-2 border-rose-500 text-rose-600 py-5 rounded-3xl text-lg">Login</button>
+        <button onclick="signUp()" class="w-full bg-rose-600 text-white py-5 rounded-3xl mb-3">Create Account</button>
+        <button onclick="login()" class="w-full border border-rose-500 text-rose-600 py-5 rounded-3xl">Login</button>
     </div>
 
-    <div id="main" class="hidden mt-8">
-        <button onclick="logout()" class="text-red-500">Logout</button>
-        <div class="card p-6 mt-8">
+    <div id="main" class="hidden">
+        <button onclick="logout()" class="text-red-500 mb-6">Logout</button>
+        <div class="card p-6">
             <textarea id="postText" class="w-full h-36 p-5 border border-pink-200 rounded-3xl" placeholder="Write something sweet..."></textarea>
-            <button onclick="postMoment()" class="w-full mt-6 bg-gradient-to-r from-rose-500 to-pink-500 text-white py-5 rounded-3xl text-lg">Share Moment 💕</button>
+            <button onclick="postMoment()" class="w-full mt-6 bg-rose-600 text-white py-5 rounded-3xl">Share Moment 💕</button>
         </div>
-        <div id="feed" class="mt-10 space-y-6"></div>
+        <div id="feed" class="mt-10"></div>
     </div>
 </div>
 
 <script>
-    const supabaseUrl = 'https://bylnhodwrptjmksvyvqv.supabase.co';
-    const supabaseKey = 'sb_publishable_n03k7xQ2C_fvlhBdUmYcEg_iPEv0jC5';
-    const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
+    const supabase = Supabase.createClient(
+        'https://bylnhodwrptjmksvyvqv.supabase.co',
+        'sb_publishable_n03k7xQ2C_fvlhBdUmYcEg_iPEv0jC5'
+    );
 
-    // Rest of the script same as before
     function signUp() {
         const email = document.getElementById("email").value;
         const pass = document.getElementById("password").value;
-        supabase.auth.signUp({email, password: pass}).then(() => alert("Check email")).catch(e => alert(e.message));
+        supabase.auth.signUp({email, password: pass}).then(() => alert("Account created! Check email")).catch(e => alert(e.message));
     }
 
     function login() {
@@ -65,18 +65,20 @@
 
     function postMoment() {
         const text = document.getElementById("postText").value;
-        if (text) supabase.from('posts').insert({text}).then(() => {
-            alert("💕 Shared!");
-            document.getElementById("postText").value = "";
-            loadFeed();
-        });
+        if (text) {
+            supabase.from('posts').insert({text}).then(() => {
+                alert("💕 Shared!");
+                document.getElementById("postText").value = "";
+                loadFeed();
+            });
+        }
     }
 
     function loadFeed() {
         supabase.from('posts').select('*').order('created_at', {ascending: false}).then(({data}) => {
             let html = "";
-            data.forEach(d => html += `<div class="card p-6">${d.text}</div>`);
-            document.getElementById("feed").innerHTML = html || "<p>No moments yet</p>";
+            data.forEach(d => html += `<div class="card p-6 mb-6">${d.text}</div>`);
+            document.getElementById("feed").innerHTML = html || "<p>No moments yet. Share first one 💕</p>";
         });
     }
 </script>
