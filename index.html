@@ -45,7 +45,7 @@
     function signUp() {
         const email = document.getElementById("email").value;
         const pass = document.getElementById("password").value;
-        supabase.auth.signUp({email, password: pass}).then(() => alert("Account created! Check email")).catch(e => alert(e.message));
+        supabase.auth.signUp({email, password: pass}).then(() => alert("Account created!")).catch(e => alert(e.message));
     }
 
     function login() {
@@ -78,7 +78,7 @@
         supabase.from('posts').select('*').order('created_at', {ascending: false}).then(({data}) => {
             let html = "";
             data.forEach(d => html += `<div class="card p-6 mb-6">${d.text}</div>`);
-            document.getElementById("feed").innerHTML = html || "<p>No moments yet. Share first one 💕</p>";
+            document.getElementById("feed").innerHTML = html || "<p>No moments yet</p>";
         });
     }
 </script>
